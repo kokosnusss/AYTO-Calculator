@@ -6,6 +6,12 @@
     <title>AYTO-Calculator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Google AdSense Script -->
+    <!-- TODO: Replace "ca-pub-XXXXXXXXXXXXXXXX" with your personal AdSense Publisher ID -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX"
+         crossorigin="anonymous"></script>
+         
     <style>
         :root {
             /* Dark Theme Colors */
@@ -136,7 +142,28 @@
             opacity: 1;
             transform: translateX(0);
         }
-        .notification.error { background-color: #dc2626; }
+        .notification.error {
+            background-color: #dc2626; /* btn-danger red */
+        }
+        .notification.success {
+            background-color: #16a34a; /* green-600 */
+        }
+        .main-header-title { color: #ffffff; }
+        .main-header-subtitle { color: #9ca3af; } /* text-gray-400 */
+        html:not(.dark) .main-header-title { color: #111827; } /* text-gray-900 */
+        html:not(.dark) .main-header-subtitle { color: #6b7280; } /* text-gray-500 */
+        html:not(.dark) select option:disabled {
+            color: #9ca3af; /* text-gray-400 */
+        }
+        .pair-chip {
+            background-color: #374151; /* Corresponds to gray-700, same as input-bg in dark */
+        }
+        html:not(.dark) .pair-chip {
+            background-color: #e5e7eb; /* Corresponds to gray-200 */
+        }
+        #prognosis-info {
+            color: #9ca3af; /* Corresponds to text-gray-400 */
+        }
         html:not(.dark) #prognosis-info {
             color: #4b5563; /* Corresponds to text-gray-600 */
         }
@@ -308,6 +335,29 @@
                 </div>
             </div>
         </main>
+
+        <!-- AdSense Banner Container -->
+        <div class="my-8 flex justify-center">
+            <!-- 
+                GOOGLE ADSENSE AD UNIT
+                --------------------------
+                To enable ads, you need to:
+                1. Sign up for a Google AdSense account.
+                2. In your AdSense account, create a new ad unit.
+                3. Replace "ca-pub-XXXXXXXXXXXXXXXX" below with your personal AdSense Publisher ID.
+                4. Replace "YYYYYYYYYY" below with the Ad Slot ID of your created ad unit.
+            -->
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+                 data-ad-slot="YYYYYYYYYY"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                 (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>
+
     </div>
 
     <!-- Reset Confirmation Modal -->
@@ -1181,5 +1231,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
-
 
