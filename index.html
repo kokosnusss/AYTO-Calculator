@@ -33,6 +33,7 @@
             font-family: 'Inter', sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
         }
         .tab-button {
             transition: all 0.2s ease-in-out;
@@ -64,12 +65,19 @@
             border-radius: 0.5rem;
             font-weight: 500;
             transition: all 0.2s ease-in-out;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
         .btn-primary {
             background-color: var(--accent-cyan);
             color: white;
         }
-        .btn-primary:hover {
+        .btn-primary:hover:not(:disabled) {
             background-color: #0891b2;
         }
         .btn-danger {
@@ -135,6 +143,23 @@
         .main-header-subtitle { color: #9ca3af; } /* text-gray-400 */
         html:not(.dark) .main-header-title { color: #111827; } /* text-gray-900 */
         html:not(.dark) .main-header-subtitle { color: #6b7280; } /* text-gray-500 */
+
+        /* Added for better light theme readability */
+        html:not(.dark) select option:disabled {
+            color: #9ca3af; /* text-gray-400 */
+        }
+        .pair-chip {
+            background-color: #374151; /* Corresponds to gray-700, same as input-bg in dark */
+        }
+        html:not(.dark) .pair-chip {
+            background-color: #e5e7eb; /* Corresponds to gray-200 */
+        }
+        #prognosis-info {
+            color: #9ca3af; /* Corresponds to text-gray-400 */
+        }
+        html:not(.dark) #prognosis-info {
+            color: #4b5563; /* Corresponds to text-gray-600 */
+        }
     </style>
 </head>
 <body class="p-4 md:p-8">
@@ -146,7 +171,7 @@
             <div class="absolute top-0 right-0 flex items-center space-x-2">
                 <button id="theme-toggle" class="p-2 rounded-full text-gray-400 hover:bg-gray-700 hover:text-white transition">
                     <svg id="theme-icon-light" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-sun-fill hidden" viewBox="0 0 16 16"><path d="M8 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"/></svg>
-                    <svg id="theme-icon-dark" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-moon-stars-fill" viewBox="0 0 16 16"><path d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278z"/><path d="M10.794 3.148a.217.217 0 0 1 .412 0l.387 1.162h1.212a.217.217 0 0 1 .134.386l-1.002.725.387 1.162a.217.217 0 0 1-.316.228l-1.001-.725-1.002.725a.217.217 0 0 1-.316-.228l.387-1.162-1.002-.725a.217.217 0 0 1 .134-.386h1.212l.387-1.162zM13.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a.796.796 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a.796.796 0 0 0-.732-.732l-.774-.258a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732L13.863.1z"/></svg>
+                    <svg id="theme-icon-dark" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-moon-stars-fill" viewBox="0 0 16 16"><path d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278z"/><path d="M10.794 3.148a.217.217 0 0 1 .412 0l.387 1.162h1.212a.217.217 0 0 1 .134.386l-1.002.725.387 1.162a.217.217 0 0 1-.316.228l-1.001-.725-1.002.725a.217.217 0 0 1-.316-.228l.387-1.162-1.002-.725a.217.217 0 0 1 .134-.386h1.212l.387-1.162zM13.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a.796.796 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a.796.796 0 0 0-.732-.732l-.774-.258a.145.145 0 0 1 0-.274l.774.258c.346-.115.617-.386.732-.732L13.863.1z"/></svg>
                 </button>
                 <button id="lang-toggle" class="p-2 w-10 text-center rounded-full text-sm font-semibold text-gray-400 hover:bg-gray-700 hover:text-white transition">DE</button>
             </div>
@@ -166,61 +191,70 @@
         <main id="tab-content">
             <!-- Kandidaten Tab -->
             <div id="kandidaten" class="tab-pane">
-                <div class="card p-6 mb-6">
-                    <h2 class="text-xl font-semibold text-white mb-4" data-lang="add_contestant_title">Neuen Kandidaten hinzufügen</h2>
-                    <form id="add-contestant-form" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-                        <div class="w-full">
-                            <label for="name" class="block text-sm font-medium mb-1" data-lang="label_name">Name</label>
-                            <input type="text" id="name" name="name" class="input-field w-full px-3 py-2" required>
-                        </div>
-                        <div class="w-full">
-                            <label for="gender" class="block text-sm font-medium mb-1" data-lang="label_gender">Geschlecht</label>
-                            <select id="gender" name="gender" class="input-field w-full px-3 py-2" required>
-                                <option value="male" data-lang="gender_male">Männlich</option>
-                                <option value="female" data-lang="gender_female">Weiblich</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-full py-2" data-lang="btn_add">Hinzufügen</button>
-                    </form>
-                </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <h3 class="text-lg font-semibold mb-3" data-lang="title_men">Männer</h3>
-                        <div id="male-contestants" class="space-y-3"></div>
+                    <div class="card p-6">
+                        <h2 class="text-xl font-semibold mb-4" data-lang="add_contestant_title">Kandidat hinzufügen</h2>
+                        <form id="add-contestant-form" class="space-y-4">
+                            <div>
+                                <label for="contestant-name" class="block text-sm font-medium mb-1" data-lang="label_name">Name</label>
+                                <input type="text" id="contestant-name" class="input-field w-full px-3 py-2" required>
+                            </div>
+                            <div>
+                                <label for="contestant-gender" class="block text-sm font-medium mb-1" data-lang="label_gender">Geschlecht</label>
+                                <select id="contestant-gender" class="input-field w-full px-3 py-2">
+                                    <option value="male" data-lang="gender_male">Männlich</option>
+                                    <option value="female" data-lang="gender_female">Weiblich</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-full py-2" data-lang="btn_add_contestant">Kandidat hinzufügen</button>
+                        </form>
                     </div>
-                    <div>
-                        <h3 class="text-lg font-semibold mb-3" data-lang="title_women">Frauen</h3>
-                        <div id="female-contestants" class="space-y-3"></div>
+                    <div class="card p-6">
+                        <h2 class="text-xl font-semibold mb-4" data-lang="contestants_list_title">Kandidatenliste</h2>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <h3 class="font-semibold mb-2" data-lang="gender_male">Männer</h3>
+                                <ul id="male-list" class="space-y-2"></ul>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold mb-2" data-lang="gender_female">Frauen</h3>
+                                <ul id="female-list" class="space-y-2"></ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Matchboxen Tab -->
             <div id="matchboxen" class="tab-pane hidden">
-                 <div class="card p-6 mb-6">
-                    <h2 class="text-xl font-semibold mb-4" data-lang="add_matchbox_title">Matchbox Ergebnis hinzufügen</h2>
-                    <form id="add-matchbox-form" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-                        <div>
-                            <label for="mb-male" class="block text-sm font-medium mb-1" data-lang="label_man">Mann</label>
-                            <select id="mb-male" class="input-field w-full px-3 py-2"></select>
-                        </div>
-                         <div>
-                            <label for="mb-female" class="block text-sm font-medium mb-1" data-lang="label_woman">Frau</label>
-                            <select id="mb-female" class="input-field w-full px-3 py-2"></select>
-                        </div>
-                         <div>
-                            <label for="mb-result" class="block text-sm font-medium mb-1" data-lang="label_result">Ergebnis</label>
-                            <select id="mb-result" class="input-field w-full px-3 py-2">
-                                <option value="perfect" data-lang="result_perfect_match">Perfect Match</option>
-                                <option value="no_match" data-lang="result_no_match">No Match</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-full py-2" data-lang="btn_save">Speichern</button>
-                    </form>
-                </div>
-                <div>
-                    <h3 class="text-lg font-semibold mb-3" data-lang="title_previous_matchboxes">Bisherige Matchboxen</h3>
-                    <div id="matchbox-list" class="space-y-3"></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="card p-6">
+                        <h2 class="text-xl font-semibold mb-4" data-lang="add_matchbox_title">Matchbox hinzufügen</h2>
+                        <form id="add-matchbox-form" class="space-y-4">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label for="mb-male" class="block text-sm font-medium mb-1" data-lang="gender_male">Mann</label>
+                                    <select id="mb-male" class="input-field w-full px-3 py-2"></select>
+                                </div>
+                                <div>
+                                    <label for="mb-female" class="block text-sm font-medium mb-1" data-lang="gender_female">Frau</label>
+                                    <select id="mb-female" class="input-field w-full px-3 py-2"></select>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1" data-lang="label_result">Ergebnis</label>
+                                <div class="flex space-x-4">
+                                    <label class="flex items-center"><input type="radio" name="mb-result" value="perfect" class="mr-2" checked><span data-lang="result_perfect">Perfect Match</span></label>
+                                    <label class="flex items-center"><input type="radio" name="mb-result" value="no_match" class="mr-2"><span data-lang="result_no_match">No Match</span></label>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-full py-2" data-lang="btn_add_matchbox">Matchbox speichern</button>
+                        </form>
+                    </div>
+                    <div class="card p-6">
+                        <h2 class="text-xl font-semibold mb-4" data-lang="matchbox_history_title">Matchbox-Verlauf</h2>
+                        <ul id="matchbox-list" class="space-y-3"></ul>
+                    </div>
                 </div>
             </div>
 
@@ -229,25 +263,23 @@
                 <div id="mn-form-card" class="card p-6 mb-6">
                     <h2 id="mn-form-title" class="text-xl font-semibold mb-4" data-lang="add_mn_title">Matching Night hinzufügen</h2>
                     <div class="mb-4">
-                        <label for="mn-chooser" class="block text-sm font-medium mb-1" data-lang="label_who_chooses">Wer wählt?</label>
+                        <label for="mn-chooser" class="block text-sm font-medium mb-1" data-lang="label_chooser">Wer wählt?</label>
                         <select id="mn-chooser" class="input-field w-full md:w-1/2 px-3 py-2">
-                            <option value="men_choose" data-lang="men_choose_women">Männer wählen Frauen</option>
-                            <option value="women_choose" data-lang="women_choose_men">Frauen wählen Männer</option>
+                            <option value="men_choose" data-lang="chooser_men">Männer wählen</option>
+                            <option value="women_choose" data-lang="chooser_women">Frauen wählen</option>
                         </select>
                     </div>
-                    <div id="mn-pairs-container" class="space-y-4 mb-4">
-                        <!-- Pair selectors will be generated here -->
-                    </div>
+                    <div id="mn-pairs-container" class="grid grid-cols-1 gap-4 mb-4"></div>
                     <div class="flex items-center space-x-4 mb-4">
-                        <label for="mn-lights" class="text-sm font-medium" data-lang="label_lights">Anzahl Lichter:</label>
-                        <input type="number" id="mn-lights" min="0" class="input-field w-24 px-3 py-2 text-center">
+                        <label for="mn-lights" class="block text-sm font-medium" data-lang="label_lights">Anzahl Lichter:</label>
+                        <input type="number" id="mn-lights" min="0" class="input-field w-24 px-3 py-2">
                     </div>
-                    <div id="mn-form-buttons" class="flex items-center space-x-2">
+                    <div id="mn-form-buttons">
                         <button id="add-mn-button" class="btn btn-primary px-5 py-2" data-lang="btn_save_mn">Matching Night speichern</button>
                     </div>
                 </div>
-                 <div>
-                    <h3 class="text-lg font-semibold mb-3" data-lang="title_previous_mns">Bisherige Matching Nights</h3>
+                <div class="card p-6">
+                    <h2 class="text-xl font-semibold mb-4" data-lang="mn_history_title">Matching Night-Verlauf</h2>
                     <div id="matching-night-list" class="space-y-4"></div>
                 </div>
             </div>
@@ -255,14 +287,14 @@
             <!-- Prognose Tab -->
             <div id="prognose" class="tab-pane hidden">
                  <div class="card p-6">
-                    <div class="flex justify-between items-center mb-4">
+                    <div class="flex flex-wrap justify-between items-center mb-4 gap-4">
                         <h2 class="text-xl font-semibold" data-lang="prognosis_title">Prognose: Wahrscheinlichkeiten für Perfect Matches</h2>
-                        <button id="recalculate-prognosis" class="btn btn-primary px-4 py-2 flex items-center space-x-2">
+                        <button id="recalculate-prognosis" class="btn btn-primary px-4 py-2 space-x-2">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/></svg>
                             <span data-lang="btn_recalculate">Neu berechnen</span>
                         </button>
                     </div>
-                    <div id="prognosis-info" class="mb-4 text-gray-300"></div>
+                    <div id="prognosis-info" class="mb-4"></div>
                     <div id="prognosis-results" class="prognosis-grid">
                         <!-- Prognosis cards will be generated here -->
                     </div>
@@ -280,104 +312,92 @@ const translations = {
         tab_matchboxes: "Matchboxen",
         tab_matching_nights: "Matching Nights",
         tab_prognosis: "Prognose",
-        add_contestant_title: "Neuen Kandidaten hinzufügen",
+        add_contestant_title: "Kandidat hinzufügen",
         label_name: "Name",
         label_gender: "Geschlecht",
         gender_male: "Männlich",
         gender_female: "Weiblich",
-        btn_add: "Hinzufügen",
-        title_men: "Männer",
-        title_women: "Frauen",
-        add_matchbox_title: "Matchbox Ergebnis hinzufügen",
-        label_man: "Mann",
-        label_woman: "Frau",
+        btn_add_contestant: "Kandidat hinzufügen",
+        contestants_list_title: "Kandidatenliste",
+        add_matchbox_title: "Matchbox hinzufügen",
         label_result: "Ergebnis",
-        result_perfect_match: "Perfect Match",
+        result_perfect: "Perfect Match",
         result_no_match: "No Match",
-        btn_save: "Speichern",
-        title_previous_matchboxes: "Bisherige Matchboxen",
+        btn_add_matchbox: "Matchbox speichern",
+        matchbox_history_title: "Matchbox-Verlauf",
         add_mn_title: "Matching Night hinzufügen",
-        edit_mn_title: "Matching Night bearbeiten",
-        label_who_chooses: "Wer wählt?",
-        men_choose_women: "Männer wählen Frauen",
-        women_choose_men: "Frauen wählen Männer",
+        label_chooser: "Wer wählt?",
+        chooser_men: "Männer wählen",
+        chooser_women: "Frauen wählen",
         label_lights: "Anzahl Lichter:",
         btn_save_mn: "Matching Night speichern",
-        btn_update_mn: "Änderungen speichern",
-        btn_cancel: "Abbrechen",
-        title_previous_mns: "Bisherige Matching Nights",
+        mn_history_title: "Matching Night-Verlauf",
         prognosis_title: "Prognose: Wahrscheinlichkeiten für Perfect Matches",
         btn_recalculate: "Neu berechnen",
-        prognosis_calculating: "Berechne Wahrscheinlichkeiten...",
-        prognosis_uneven: "Die Prognose kann nur berechnet werden, wenn die Anzahl der Männer und Frauen gleich ist und nicht null beträgt.",
-        prognosis_info_text: "Basierend auf den eingegebenen Daten gibt es <strong class=\"text-cyan-400\">{count}</strong> mögliche korrekte Kombinationen für die verbleibenden Kandidaten.",
-        prognosis_info_text_one: "Basierend auf den eingegebenen Daten gibt es <strong class=\"text-cyan-400\">1</strong> mögliche korrekte Kombination für die verbleibenden Kandidaten.",
-        prognosis_all_found: "Alle Paare gefunden! Herzlichen Glückwunsch! Es gibt <strong class=\"text-cyan-400\">1</strong> mögliche korrekte Kombination.",
-        prognosis_no_combinations: "Keine gültigen Kombinationen für die restlichen Kandidaten gefunden. Bitte überprüfe die Eingaben auf widersprüchliche Informationen.",
+        notification_contestant_added: "Kandidat hinzugefügt!",
+        notification_contestant_removed: "Kandidat entfernt.",
+        notification_name_updated: "Name aktualisiert.",
+        notification_select_pair: "Bitte wähle einen Mann und eine Frau für die Matchbox aus.",
+        notification_duplicate_partner: "Bitte weise jeder Person genau einen Partner zu und stelle sicher, dass keine Duplikate vorhanden sind.",
+        notification_valid_lights: "Bitte gib eine gültige Anzahl an Lichtern an (0 bis {count}).",
         mn_of: "Matching Night",
         lights_of: "Lichter",
-        choose_man: "Wähle Mann",
-        choose_woman: "Wähle Frau",
-        choose_partner: "Wähle Partner",
-        choose_female_partner: "Wähle Partnerin",
-        add_contestants_first: "Füge zuerst Kandidaten hinzu, um eine Matching Night zu erstellen.",
-        // Notifications
-        notification_select_pair: "Bitte wähle einen Mann und eine Frau für die Matchbox aus.",
-        notification_mn_assign_partner: "Bitte weise jeder Person genau einen Partner zu und stelle sicher, dass keine Duplikate vorhanden sind.",
-        notification_mn_lights_invalid: "Bitte gib eine gültige Anzahl an Lichtern an (0 bis {count})."
+        btn_edit: "Bearbeiten",
+        btn_save_changes: "Änderungen speichern",
+        btn_cancel: "Abbrechen",
+        edit_mn_title: "Matching Night bearbeiten",
+        prognosis_no_combinations: "Es gibt keine gültigen Kombinationen mehr, die zu den eingegebenen Daten passen. Überprüfe deine Eingaben.",
+        prognosis_calculating: "Berechne Wahrscheinlichkeiten...",
+        prognosis_uneven: "Die Prognose kann nur berechnet werden, wenn mindestens ein Mann und eine Frau vorhanden sind.",
+        prognosis_info_text: "Basierend auf den eingegebenen Daten gibt es <strong class=\"text-cyan-400\">{count}</strong> mögliche korrekte Kombinationen für die verbleibenden Kandidaten.",
+        prognosis_info_text_one: "Basierend auf den eingegebenen Daten gibt es <strong class=\"text-cyan-400\">1</strong> mögliche korrekte Kombination für die verbleibenden Kandidaten.",
     },
     en: {
         title: "AYTO-Calculator",
-        subtitle: "Match Calculator & Forecast Tool",
+        subtitle: "Match Calculator & Prognosis Tool",
         tab_contestants: "Contestants",
         tab_matchboxes: "Matchboxes",
         tab_matching_nights: "Matching Nights",
         tab_prognosis: "Prognosis",
-        add_contestant_title: "Add New Contestant",
+        add_contestant_title: "Add Contestant",
         label_name: "Name",
         label_gender: "Gender",
         gender_male: "Male",
         gender_female: "Female",
-        btn_add: "Add",
-        title_men: "Men",
-        title_women: "Women",
-        add_matchbox_title: "Add Matchbox Result",
-        label_man: "Man",
-        label_woman: "Woman",
+        btn_add_contestant: "Add Contestant",
+        contestants_list_title: "Contestants List",
+        add_matchbox_title: "Add Matchbox",
         label_result: "Result",
-        result_perfect_match: "Perfect Match",
+        result_perfect: "Perfect Match",
         result_no_match: "No Match",
-        btn_save: "Save",
-        title_previous_matchboxes: "Previous Matchboxes",
+        btn_add_matchbox: "Save Matchbox",
+        matchbox_history_title: "Matchbox History",
         add_mn_title: "Add Matching Night",
-        edit_mn_title: "Edit Matching Night",
-        label_who_chooses: "Who chooses?",
-        men_choose_women: "Men choose Women",
-        women_choose_men: "Women choose Men",
-        label_lights: "Number of Lights:",
+        label_chooser: "Who chooses?",
+        chooser_men: "Men choose",
+        chooser_women: "Women choose",
+        label_lights: "Number of lights:",
         btn_save_mn: "Save Matching Night",
-        btn_update_mn: "Save Changes",
-        btn_cancel: "Cancel",
-        title_previous_mns: "Previous Matching Nights",
+        mn_history_title: "Matching Night History",
         prognosis_title: "Prognosis: Probabilities for Perfect Matches",
         btn_recalculate: "Recalculate",
-        prognosis_calculating: "Calculating probabilities...",
-        prognosis_uneven: "The prognosis can only be calculated if the number of men and women is equal and not zero.",
-        prognosis_info_text: "Based on the entered data, there are <strong class=\"text-cyan-400\">{count}</strong> possible correct combinations for the remaining contestants.",
-        prognosis_info_text_one: "Based on the entered data, there is <strong class=\"text-cyan-400\">1</strong> possible correct combination for the remaining contestants.",
-        prognosis_all_found: "All pairs found! Congratulations! There is <strong class=\"text-cyan-400\">1</strong> possible correct combination.",
-        prognosis_no_combinations: "No valid combinations found for the remaining contestants. Please check the inputs for conflicting information.",
+        notification_contestant_added: "Contestant added!",
+        notification_contestant_removed: "Contestant removed.",
+        notification_name_updated: "Name updated.",
+        notification_select_pair: "Please select a man and a woman for the Matchbox.",
+        notification_duplicate_partner: "Please assign exactly one partner to each person and ensure there are no duplicates.",
+        notification_valid_lights: "Please enter a valid number of lights (0 to {count}).",
         mn_of: "Matching Night",
         lights_of: "Lights",
-        choose_man: "Choose man",
-        choose_woman: "Choose woman",
-        choose_partner: "Choose partner",
-        choose_female_partner: "Choose partner",
-        add_contestants_first: "Add contestants first to create a matching night.",
-        // Notifications
-        notification_select_pair: "Please select a man and a woman for the matchbox.",
-        notification_mn_assign_partner: "Please assign exactly one partner to each person and ensure there are no duplicates.",
-        notification_mn_lights_invalid: "Please enter a valid number of lights (0 to {count})."
+        btn_edit: "Edit",
+        btn_save_changes: "Save Changes",
+        btn_cancel: "Cancel",
+        edit_mn_title: "Edit Matching Night",
+        prognosis_no_combinations: "There are no valid combinations left that fit the entered data. Please check your inputs.",
+        prognosis_calculating: "Calculating probabilities...",
+        prognosis_uneven: "The prognosis can only be calculated if there is at least one man and one woman.",
+        prognosis_info_text: "Based on the entered data, there are <strong class=\"text-cyan-400\">{count}</strong> possible correct combinations for the remaining contestants.",
+        prognosis_info_text_one: "Based on the entered data, there is <strong class=\"text-cyan-400\">1</strong> possible correct combination for the remaining contestants.",
     }
 };
 
@@ -402,34 +422,50 @@ const AppState = {
         this.renderAll();
     },
 
+    saveState() {
+        localStorage.setItem('aytoState', JSON.stringify(this.state));
+    },
+
+    loadState() {
+        const savedState = localStorage.getItem('aytoState');
+        if (savedState) {
+            this.state = JSON.parse(savedState);
+        }
+    },
+
+    saveSettings() {
+        localStorage.setItem('aytoSettings', JSON.stringify(this.settings));
+    },
+
+    loadSettings() {
+        const savedSettings = localStorage.getItem('aytoSettings');
+        if (savedSettings) {
+            this.settings = { ...this.settings, ...JSON.parse(savedSettings) };
+        }
+    },
+
     setupEventListeners() {
-        document.getElementById('theme-toggle').addEventListener('click', () => {
-            const newTheme = this.settings.theme === 'dark' ? 'light' : 'dark';
-            this.setTheme(newTheme);
-        });
-
-        document.getElementById('lang-toggle').addEventListener('click', () => {
-            const newLang = this.settings.lang === 'de' ? 'en' : 'de';
-            this.setLanguage(newLang);
-        });
-
+        // Tab navigation
         document.getElementById('tab-navigation').addEventListener('click', (e) => {
-            if (e.target.matches('button[data-tab]')) {
-                const tabId = e.target.dataset.tab;
-                this.switchTab(tabId);
+            if (e.target.matches('[data-tab]')) {
+                this.setActiveTab(e.target.dataset.tab);
             }
         });
 
+        // Add Contestant form
         document.getElementById('add-contestant-form').addEventListener('submit', (e) => {
             e.preventDefault();
-            const name = e.target.name.value.trim();
-            const gender = e.target.gender.value;
+            const nameInput = e.target['contestant-name'];
+            const genderSelect = e.target['contestant-gender'];
+            const name = nameInput.value.trim();
             if (name) {
-                this.addContestant(name, gender);
-                e.target.name.value = '';
+                this.addContestant(name, genderSelect.value);
+                nameInput.value = ''; // Keep gender selected
+                nameInput.focus();
             }
         });
 
+        // Add Matchbox form
         document.getElementById('add-matchbox-form').addEventListener('submit', (e) => {
             e.preventDefault();
             const manId = parseInt(e.target['mb-male'].value);
@@ -442,6 +478,10 @@ const AppState = {
             }
         });
         
+        // Matching Night chooser change
+        document.getElementById('mn-chooser').addEventListener('change', () => this.renderMatchingNightForm());
+
+        // Matching Night form buttons (Save/Update/Cancel)
         document.getElementById('mn-form-buttons').addEventListener('click', (e) => {
             if (e.target.id === 'add-mn-button') {
                 this.saveMatchingNight();
@@ -450,77 +490,166 @@ const AppState = {
             }
         });
 
-        document.getElementById('recalculate-prognosis').addEventListener('click', () => this.renderPrognosis());
-        document.getElementById('mn-chooser').addEventListener('change', () => this.renderMatchingNights());
-        document.getElementById('mn-pairs-container').addEventListener('change', (e) => {
-            if (e.target.matches('select')) this.updateMatchingNightDropdowns();
+        // Recalculate prognosis button
+        document.getElementById('recalculate-prognosis').addEventListener('click', () => {
+            this.renderPrognosis();
+        });
+
+        // Theme toggle
+        document.getElementById('theme-toggle').addEventListener('click', () => {
+            this.setTheme(this.settings.theme === 'dark' ? 'light' : 'dark');
+            this.saveSettings();
+        });
+
+        // Language toggle
+        document.getElementById('lang-toggle').addEventListener('click', () => {
+            this.setLanguage(this.settings.lang === 'de' ? 'en' : 'de');
+            this.saveSettings();
         });
     },
-    
-    translate(key, replacements = {}) {
-        let text = translations[this.settings.lang][key] || key;
-        for (const placeholder in replacements) {
-            text = text.replace(`{${placeholder}}`, replacements[placeholder]);
+
+    setTheme(theme) {
+        this.settings.theme = theme;
+        const root = document.documentElement;
+        const lightIcon = document.getElementById('theme-icon-light');
+        const darkIcon = document.getElementById('theme-icon-dark');
+        if (theme === 'dark') {
+            root.classList.add('dark');
+            lightIcon.classList.remove('hidden');
+            darkIcon.classList.add('hidden');
+        } else {
+            root.classList.remove('dark');
+            lightIcon.classList.add('hidden');
+            darkIcon.classList.remove('hidden');
         }
-        return text;
     },
 
     setLanguage(lang) {
         this.settings.lang = lang;
-        document.documentElement.lang = lang;
         document.querySelectorAll('[data-lang]').forEach(el => {
             const key = el.dataset.lang;
-            if (translations[lang][key]) {
-                el.textContent = translations[lang][key];
+            const translation = this.translate(key);
+            if (translation) {
+                // If the element has a placeholder, set it, otherwise set textContent
+                if (el.placeholder !== undefined) {
+                    el.placeholder = translation;
+                } else {
+                    el.innerHTML = translation; // Use innerHTML to support strong tags
+                }
             }
         });
         document.getElementById('lang-toggle').textContent = lang.toUpperCase();
-        this.saveSettings();
-        this.renderAll(); // Re-render to update dynamic content
+        this.renderAll(); // Rerender to update dynamic content
     },
     
-    setTheme(theme) {
-        this.settings.theme = theme;
-        const html = document.documentElement;
-        if (theme === 'dark') {
-            html.classList.add('dark');
-            document.getElementById('theme-icon-dark').classList.remove('hidden');
-            document.getElementById('theme-icon-light').classList.add('hidden');
-        } else {
-            html.classList.remove('dark');
-            document.getElementById('theme-icon-dark').classList.add('hidden');
-            document.getElementById('theme-icon-light').classList.remove('hidden');
-        }
-        this.saveSettings();
+    translate(key, replacements = {}) {
+        let translation = translations[this.settings.lang][key] || translations['en'][key] || `[${key}]`;
+        Object.keys(replacements).forEach(rKey => {
+            translation = translation.replace(`{${rKey}}`, replacements[rKey]);
+        });
+        return translation;
     },
 
-    // --- State Management ---
+    setActiveTab(tabId) {
+        document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.add('hidden'));
+        document.getElementById(tabId)?.classList.remove('hidden');
+
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.classList.toggle('active', button.dataset.tab === tabId);
+        });
+        
+        if(tabId === 'prognose') {
+            this.renderPrognosis();
+        }
+    },
+    
+    saveAndRender() {
+        this.saveState();
+        this.renderAll();
+    },
+
+    renderAll() {
+        this.renderContestants();
+        this.renderMatchboxes();
+        this.renderMatchingNights();
+        // Avoid auto-recalculating prognosis on every change for performance
+        if (document.getElementById('prognose').classList.contains('hidden') === false) {
+             this.renderPrognosis();
+        }
+    },
+
+    // --- Contestant Logic ---
     addContestant(name, gender) {
-        const newContestant = { id: Date.now(), name, gender };
-        this.state.contestants.push(newContestant);
+        this.state.contestants.push({ id: Date.now(), name, gender });
+        this.showNotification('notification_contestant_added', 'success');
         this.saveAndRender();
     },
+    
+    getContestantById(id) {
+        return this.state.contestants.find(c => c.id === id);
+    },
 
-    deleteContestant(id) {
+    getContestantsByGender(gender) {
+        return this.state.contestants.filter(c => c.gender === gender);
+    },
+
+    removeContestant(id) {
         this.state.contestants = this.state.contestants.filter(c => c.id !== id);
+        // Also remove from any pairs etc.
         this.state.matchboxes = this.state.matchboxes.filter(mb => mb.manId !== id && mb.womanId !== id);
         this.state.matchingNights.forEach(mn => {
             mn.pairs = mn.pairs.filter(p => p[0] !== id && p[1] !== id);
         });
+        this.showNotification('notification_contestant_removed', 'success');
         this.saveAndRender();
     },
-    
+
     updateContestantName(id, newName) {
-        const contestant = this.state.contestants.find(c => c.id === id);
+        const contestant = this.getContestantById(id);
         if (contestant) {
             contestant.name = newName;
+            this.showNotification('notification_name_updated', 'success');
             this.saveAndRender();
         }
     },
 
+    renderContestants() {
+        const maleList = document.getElementById('male-list');
+        const femaleList = document.getElementById('female-list');
+        maleList.innerHTML = '';
+        femaleList.innerHTML = '';
+
+        this.state.contestants.forEach(c => {
+            const list = c.gender === 'male' ? maleList : femaleList;
+            const li = document.createElement('li');
+            li.className = 'flex items-center justify-between p-2 rounded-md hover:bg-[var(--hover-bg)]';
+            li.innerHTML = `
+                <span contenteditable="true" class="flex-grow focus:outline-none focus:ring-2 focus:ring-cyan-500 rounded px-1">${c.name}</span>
+                <button data-id="${c.id}" class="delete-btn text-gray-400 hover:text-red-500 transition-colors ml-2 p-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/><path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/></svg>
+                </button>`;
+            
+            const nameSpan = li.querySelector('span');
+            nameSpan.addEventListener('blur', () => this.updateContestantName(c.id, nameSpan.textContent.trim()));
+            nameSpan.addEventListener('keydown', (e) => {
+                if(e.key === 'Enter') {
+                    e.preventDefault();
+                    nameSpan.blur();
+                }
+            });
+
+            li.querySelector('.delete-btn').addEventListener('click', () => this.removeContestant(c.id));
+            list.appendChild(li);
+        });
+    },
+    
+    // --- Matchbox Logic ---
+    getConfirmedPerfectMatchIds() {
+        return new Set(this.state.matchboxes.filter(mb => mb.result === 'perfect').flatMap(mb => [mb.manId, mb.womanId]));
+    },
+    
     addMatchbox(manId, womanId, result) {
-        const newMatchbox = { id: Date.now(), manId, womanId, result };
-        this.state.matchboxes.push(newMatchbox);
+        this.state.matchboxes.push({ id: Date.now(), manId, womanId, result });
         this.saveAndRender();
     },
 
@@ -528,7 +657,49 @@ const AppState = {
         this.state.matchboxes = this.state.matchboxes.filter(mb => mb.id !== id);
         this.saveAndRender();
     },
-    
+
+    renderMatchboxes() {
+        const maleSelect = document.getElementById('mb-male');
+        const femaleSelect = document.getElementById('mb-female');
+        const listContainer = document.getElementById('matchbox-list');
+        
+        maleSelect.innerHTML = `<option selected disabled>${this.translate('gender_male')}</option>`;
+        femaleSelect.innerHTML = `<option selected disabled>${this.translate('gender_female')}</option>`;
+        listContainer.innerHTML = '';
+
+        const confirmedIds = this.getConfirmedPerfectMatchIds();
+        
+        this.getContestantsByGender('male').filter(c => !confirmedIds.has(c.id)).forEach(c => {
+            maleSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+        });
+        this.getContestantsByGender('female').filter(c => !confirmedIds.has(c.id)).forEach(c => {
+            femaleSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+        });
+
+        this.state.matchboxes.forEach(mb => {
+            const man = this.getContestantById(mb.manId);
+            const woman = this.getContestantById(mb.womanId);
+            if (!man || !woman) return;
+
+            const resultText = this.translate(mb.result === 'perfect' ? 'result_perfect' : 'result_no_match');
+            const resultColor = mb.result === 'perfect' ? 'text-green-400' : 'text-red-400';
+
+            const li = document.createElement('li');
+            li.className = 'flex items-center justify-between p-2 rounded-md';
+            li.innerHTML = `
+                <span>${man.name} & ${woman.name}</span>
+                <div class="flex items-center space-x-2">
+                    <span class="font-semibold ${resultColor}">${resultText}</span>
+                    <button data-id="${mb.id}" class="delete-btn text-gray-400 hover:text-red-500 transition-colors p-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/><path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/></svg>
+                    </button>
+                </div>`;
+            li.querySelector('.delete-btn').addEventListener('click', () => this.deleteMatchbox(mb.id));
+            listContainer.appendChild(li);
+        });
+    },
+
+    // --- Matching Night Logic ---
     saveMatchingNight() {
         const chooserMode = document.getElementById('mn-chooser').value;
         const confirmedIds = this.getConfirmedPerfectMatchIds();
@@ -542,9 +713,8 @@ const AppState = {
         choosers.forEach(chooser => {
             const select = document.getElementById(`mn-select-chooser-${chooser.id}`);
             const partnerId = parseInt(select.value);
-            if(isNaN(partnerId) || selectedPartners.has(partnerId)) { 
-                isValid = false; 
-            }
+            if(isNaN(partnerId)) { isValid = false; }
+            if(selectedPartners.has(partnerId)) { isValid = false; }
             selectedPartners.add(partnerId);
             const manId = (chooserMode === 'men_choose') ? chooser.id : partnerId;
             const womanId = (chooserMode === 'men_choose') ? partnerId : chooser.id;
@@ -553,225 +723,151 @@ const AppState = {
 
         const lightsInput = document.getElementById('mn-lights');
         const lights = parseInt(lightsInput.value);
+
         const expectedPairCount = choosers.length;
 
-        if (!isValid || selectedPartners.size !== expectedPairCount) {
-            this.showNotification('notification_mn_assign_partner');
+        if (!isValid || pairs.length !== expectedPairCount) {
+            this.showNotification('notification_duplicate_partner');
             return;
         }
 
         if (isNaN(lights) || lights < 0 || lights > expectedPairCount) {
-            this.showNotification('notification_mn_lights_invalid', { count: expectedPairCount });
+            this.showNotification('notification_valid_lights', {count: expectedPairCount});
             return;
         }
         
         if (this.editingMatchingNightId) {
             const mnToUpdate = this.state.matchingNights.find(mn => mn.id === this.editingMatchingNightId);
             if (mnToUpdate) {
-                Object.assign(mnToUpdate, { pairs, lights, chooserMode });
+                mnToUpdate.pairs = pairs;
+                mnToUpdate.lights = lights;
+                mnToUpdate.chooserMode = chooserMode;
             }
         } else {
             this.state.matchingNights.push({ id: Date.now(), pairs, lights, chooserMode });
         }
         
-        this.editingMatchingNightId = null;
-        this.saveAndRender();
+        this.resetMatchingNightForm();
     },
     
     deleteMatchingNight(id) {
         this.state.matchingNights = this.state.matchingNights.filter(mn => mn.id !== id);
         this.saveAndRender();
     },
-
+    
     loadMatchingNightForEdit(id) {
         const mn = this.state.matchingNights.find(m => m.id === id);
         if (!mn) return;
 
         this.editingMatchingNightId = id;
-        document.getElementById('mn-form-title').textContent = this.translate('edit_mn_title');
+
+        document.getElementById('mn-form-title').innerHTML = this.translate('edit_mn_title');
+        
         const formCard = document.getElementById('mn-form-card');
         formCard.classList.remove('form-highlight');
         void formCard.offsetWidth;
         formCard.classList.add('form-highlight');
+        formCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
         const chooserSelect = document.getElementById('mn-chooser');
         chooserSelect.value = mn.chooserMode;
-        chooserSelect.dispatchEvent(new Event('change'));
         
-        setTimeout(() => {
-            mn.pairs.forEach(([manId, womanId]) => {
-                const chooserId = (mn.chooserMode === 'men_choose') ? manId : womanId;
-                const partnerId = (mn.chooserMode === 'men_choose') ? womanId : manId;
+        this.renderMatchingNightForm(() => {
+             mn.pairs.forEach(([manId, womanId]) => {
+                const chooserId = mn.chooserMode === 'men_choose' ? manId : womanId;
+                const partnerId = mn.chooserMode === 'men_choose' ? womanId : manId;
                 const select = document.getElementById(`mn-select-chooser-${chooserId}`);
-                if (select) select.value = partnerId;
+                if(select) select.value = partnerId;
             });
             this.updateMatchingNightDropdowns();
-            document.getElementById('mn-lights').value = mn.lights;
-        }, 0);
+        });
+        
+        document.getElementById('mn-lights').value = mn.lights;
 
         const buttonContainer = document.getElementById('mn-form-buttons');
         buttonContainer.innerHTML = `
-            <button id="add-mn-button" class="btn btn-primary px-5 py-2">${this.translate('btn_update_mn')}</button>
-            <button id="cancel-mn-edit-button" type="button" class="btn bg-gray-600 hover:bg-gray-500 text-white px-5 py-2">${this.translate('btn_cancel')}</button>
-        `;
-
-        document.getElementById('matching-nights').querySelector('.card').scrollIntoView({ behavior: 'smooth' });
+            <button id="add-mn-button" class="btn btn-primary px-5 py-2">${this.translate('btn_save_changes')}</button>
+            <button id="cancel-mn-edit-button" type="button" class="btn bg-gray-600 hover:bg-gray-500 text-white px-5 py-2">${this.translate('btn_cancel')}</button>`;
     },
 
     resetMatchingNightForm() {
         this.editingMatchingNightId = null;
-        this.renderMatchingNights();
-    },
-
-    showNotification(messageKey, replacements = {}) {
-        const message = this.translate(messageKey, replacements);
-        const container = document.getElementById('notification-container');
-        const notif = document.createElement('div');
-        notif.className = `notification error`;
-        notif.textContent = message;
-        container.appendChild(notif);
-        
-        setTimeout(() => notif.classList.add('show'), 10);
-        setTimeout(() => {
-            notif.classList.remove('show');
-            notif.addEventListener('transitionend', () => notif.remove(), { once: true });
-        }, 4000);
+        this.saveAndRender();
     },
 
     updateMatchingNightDropdowns() {
         const pairsContainer = document.getElementById('mn-pairs-container');
-        const selects = pairsContainer.querySelectorAll('select');
+        const selects = Array.from(pairsContainer.querySelectorAll('select'));
         const selectedValues = new Set();
-        selects.forEach(select => { if (select.value) selectedValues.add(select.value); });
+        
         selects.forEach(select => {
-            const currentSelection = select.value;
-            select.querySelectorAll('option').forEach(option => {
-                if (option.value) {
-                    option.disabled = selectedValues.has(option.value) && option.value !== currentSelection;
-                }
+            if(select.value !== 'none') {
+                 selectedValues.add(select.value);
+            }
+        });
+
+        selects.forEach(select => {
+            Array.from(select.options).forEach(option => {
+                option.disabled = selectedValues.has(option.value) && select.value !== option.value;
             });
         });
     },
 
-    getContestantsByGender: (gender) => AppState.state.contestants.filter(c => c.gender === gender),
-    getContestantById: (id) => AppState.state.contestants.find(c => c.id === id),
-
-    getConfirmedPerfectMatchIds() {
-        const confirmedIds = new Set();
-        this.state.matchboxes.forEach(mb => {
-            if (mb.result === 'perfect') {
-                confirmedIds.add(mb.manId).add(mb.womanId);
-            }
-        });
-        return confirmedIds;
-    },
-
-    // --- Persistence ---
-    saveState: () => localStorage.setItem('aytoState', JSON.stringify(AppState.state)),
-    loadState() {
-        const savedState = localStorage.getItem('aytoState');
-        if (savedState) this.state = JSON.parse(savedState);
-    },
-    saveSettings: () => localStorage.setItem('aytoSettings', JSON.stringify(AppState.settings)),
-    loadSettings() {
-        const savedSettings = localStorage.getItem('aytoSettings');
-        if (savedSettings) this.settings = JSON.parse(savedSettings);
-    },
-    saveAndRender() {
-        this.saveState();
-        this.renderAll();
-    },
-
-    // --- Rendering ---
-    renderAll() {
-        this.renderContestants();
-        this.renderMatchboxes();
-        this.renderMatchingNights();
-        if (document.getElementById('prognose').classList.contains('hidden') === false) {
-             this.renderPrognosis();
-        }
-    },
-
-    switchTab(tabId) {
-        document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.add('hidden'));
-        document.getElementById(tabId).classList.remove('hidden');
-        document.querySelectorAll('.tab-button').forEach(button => button.classList.remove('active'));
-        document.querySelector(`button[data-tab="${tabId}"]`).classList.add('active');
-        if (tabId === 'prognose') this.renderPrognosis();
-    },
-
-    renderContestants() {
-        const maleContainer = document.getElementById('male-contestants');
-        const femaleContainer = document.getElementById('female-contestants');
-        maleContainer.innerHTML = '';
-        femaleContainer.innerHTML = '';
-        this.getContestantsByGender('male').forEach(c => maleContainer.innerHTML += this.createContestantHTML(c));
-        this.getContestantsByGender('female').forEach(c => femaleContainer.innerHTML += this.createContestantHTML(c));
-        document.querySelectorAll('.delete-btn').forEach(btn => btn.addEventListener('click', (e) => this.deleteContestant(parseInt(e.currentTarget.dataset.id))));
-        document.querySelectorAll('.contestant-name').forEach(el => el.addEventListener('blur', (e) => this.updateContestantName(parseInt(e.currentTarget.dataset.id), e.currentTarget.textContent.trim())));
-    },
-
-    createContestantHTML(contestant) {
-        return `<div class="card flex items-center justify-between p-3"><span class="contestant-name" contenteditable="true" data-id="${contestant.id}">${contestant.name}</span><button data-id="${contestant.id}" class="delete-btn text-gray-400 hover:text-red-500 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/><path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/></svg></button></div>`;
-    },
-
-    renderMatchboxes() {
-        const listContainer = document.getElementById('matchbox-list');
-        const maleSelect = document.getElementById('mb-male');
-        const femaleSelect = document.getElementById('mb-female');
-        listContainer.innerHTML = '';
-        maleSelect.innerHTML = `<option value="">${this.translate('choose_man')}</option>`;
-        femaleSelect.innerHTML = `<option value="">${this.translate('choose_woman')}</option>`;
-        const confirmedIds = this.getConfirmedPerfectMatchIds();
-        this.getContestantsByGender('male').forEach(c => { if (!confirmedIds.has(c.id)) maleSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`; });
-        this.getContestantsByGender('female').forEach(c => { if (!confirmedIds.has(c.id)) femaleSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`; });
-        this.state.matchboxes.forEach(mb => {
-            const man = this.getContestantById(mb.manId);
-            const woman = this.getContestantById(mb.womanId);
-            if (man && woman) listContainer.innerHTML += this.createMatchboxHTML(mb, man, woman);
-        });
-        listContainer.querySelectorAll('.delete-btn').forEach(btn => btn.addEventListener('click', (e) => this.deleteMatchbox(parseInt(e.currentTarget.dataset.id))));
-    },
-
-    createMatchboxHTML(mb, man, woman) {
-        const isPerfect = mb.result === 'perfect';
-        const bgColor = isPerfect ? 'bg-green-600/20 border-green-500' : 'bg-red-600/20 border-red-500';
-        const textColor = isPerfect ? 'text-green-400' : 'text-red-400';
-        const resultText = isPerfect ? this.translate('result_perfect_match') : this.translate('result_no_match');
-        return `<div class="card flex items-center justify-between p-4 border-l-4 ${bgColor}"><div class="font-medium"><span>${man.name}</span><span class="text-gray-400 mx-2">&</span><span>${woman.name}</span></div><div class="flex items-center space-x-4"><span class="font-semibold ${textColor}">${resultText}</span><button data-id="${mb.id}" class="delete-btn text-gray-400 hover:text-red-500 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/><path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/></svg></button></div></div>`;
-    },
-    
-    renderMatchingNights() {
-        const pairsContainer = document.getElementById('mn-pairs-container');
-        const listContainer = document.getElementById('matching-night-list');
+    renderMatchingNightForm(callback) {
         const chooserMode = document.getElementById('mn-chooser').value;
-        pairsContainer.innerHTML = '';
-        listContainer.innerHTML = '';
-        
+        const container = document.getElementById('mn-pairs-container');
+        const lightsInput = document.getElementById('mn-lights');
+        container.innerHTML = '';
+
         const confirmedIds = this.getConfirmedPerfectMatchIds();
         const men = this.getContestantsByGender('male').filter(c => !confirmedIds.has(c.id));
         const women = this.getContestantsByGender('female').filter(c => !confirmedIds.has(c.id));
-        document.getElementById('mn-lights').max = Math.min(men.length, women.length);
 
-        if (men.length === 0 || women.length === 0) {
-            pairsContainer.innerHTML = `<p class="text-gray-400">${this.translate('add_contestants_first')}</p>`;
-        } else {
-            const [choosers, partners, partnerPlaceholder] = (chooserMode === 'men_choose') ? [men, women, 'choose_female_partner'] : [women, men, 'choose_partner'];
-            choosers.forEach(chooser => {
-                let options = `<option value="">${this.translate(partnerPlaceholder)}</option>`;
-                partners.forEach(partner => { options += `<option value="${partner.id}">${partner.name}</option>`; });
-                pairsContainer.innerHTML += `<div class="grid grid-cols-3 gap-4 items-center"><label class="font-medium text-right">${chooser.name}</label><span class="text-center text-gray-400">↔</span><select id="mn-select-chooser-${chooser.id}" class="input-field w-full px-3 py-2">${options}</select></div>`;
-            });
-        }
+        const choosers = (chooserMode === 'men_choose') ? men : women;
+        const partners = (chooserMode === 'men_choose') ? women : men;
         
-        this.state.matchingNights.forEach((mn, index) => listContainer.innerHTML += this.createMatchingNightHTML(mn, index + 1));
+        lightsInput.max = choosers.length;
+
+        choosers.forEach(chooser => {
+            const partnerOptions = partners.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+            const div = document.createElement('div');
+            div.innerHTML = `
+                <label for="mn-select-chooser-${chooser.id}" class="block text-sm font-medium mb-1">${chooser.name}</label>
+                <select id="mn-select-chooser-${chooser.id}" class="input-field w-full px-3 py-2">
+                    <option value="none" selected disabled>Select Partner</option>
+                    ${partnerOptions}
+                </select>
+            `;
+            container.appendChild(div);
+        });
+
+        container.querySelectorAll('select').forEach(select => {
+            select.addEventListener('change', () => this.updateMatchingNightDropdowns());
+        });
+        
+        if(typeof callback === 'function') callback();
+    },
+
+    renderMatchingNights() {
+        const listContainer = document.getElementById('matching-night-list');
+        listContainer.innerHTML = '';
+        
+        // Render the form first
+        this.renderMatchingNightForm();
+        
+        // Then render the list
+        this.state.matchingNights.forEach((mn, index) => {
+            listContainer.innerHTML += this.createMatchingNightHTML(mn, index + 1);
+        });
+        
         listContainer.querySelectorAll('.delete-btn').forEach(btn => btn.addEventListener('click', (e) => this.deleteMatchingNight(parseInt(e.currentTarget.dataset.id))));
         listContainer.querySelectorAll('.edit-mn-btn').forEach(btn => btn.addEventListener('click', (e) => this.loadMatchingNightForEdit(parseInt(e.currentTarget.dataset.id))));
     
         if (this.editingMatchingNightId === null) {
-            document.getElementById('mn-form-title').textContent = this.translate('add_mn_title');
+            document.getElementById('mn-form-title').innerHTML = this.translate('add_mn_title');
             document.getElementById('mn-lights').value = '';
-            document.getElementById('mn-form-buttons').innerHTML = `<button id="add-mn-button" class="btn btn-primary px-5 py-2">${this.translate('btn_save_mn')}</button>`;
+            const buttonContainer = document.getElementById('mn-form-buttons');
+            buttonContainer.innerHTML = `<button id="add-mn-button" class="btn btn-primary px-5 py-2">${this.translate('btn_save_mn')}</button>`;
         }
     },
 
@@ -779,11 +875,27 @@ const AppState = {
         let pairsHTML = mn.pairs.map(([manId, womanId]) => {
             const man = this.getContestantById(manId);
             const woman = this.getContestantById(womanId);
-            return (man && woman) ? `<div class="p-2 bg-gray-800 rounded-md text-sm">${man.name} - ${woman.name}</div>` : '';
+            return (man && woman) ? `<div class="p-2 pair-chip rounded-md text-sm">${man.name} - ${woman.name}</div>` : '';
         }).join('');
         return `<div class="card p-4"><div class="flex justify-between items-center mb-3"><h4 class="font-semibold">${this.translate('mn_of')} #${index}</h4><div class="flex items-center space-x-4"><span class="text-lg font-bold text-cyan-400">${mn.lights} ${this.translate('lights_of')}</span><button data-id="${mn.id}" class="edit-mn-btn text-gray-400 hover:text-cyan-400 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/><path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/></svg></button><button data-id="${mn.id}" class="delete-btn text-gray-400 hover:text-red-500 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/><path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/></svg></button></div></div><div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">${pairsHTML}</div></div>`;
     },
 
+    showNotification(messageKey, type = 'error') {
+        const container = document.getElementById('notification-container');
+        const notif = document.createElement('div');
+        notif.className = `notification ${type}`;
+        notif.textContent = this.translate(messageKey);
+        
+        container.appendChild(notif);
+        
+        setTimeout(() => { notif.classList.add('show'); }, 10);
+        setTimeout(() => {
+            notif.classList.remove('show');
+            notif.addEventListener('transitionend', () => notif.remove(), { once: true });
+        }, 4000);
+    },
+    
+    // --- Prognosis Rendering ---
     renderPrognosis() {
         const resultsContainer = document.getElementById('prognosis-results');
         const infoContainer = document.getElementById('prognosis-info');
@@ -794,7 +906,7 @@ const AppState = {
             const allMen = this.getContestantsByGender('male');
             const allWomen = this.getContestantsByGender('female');
 
-            if (allMen.length !== allWomen.length || allMen.length === 0) {
+            if (allMen.length === 0 || allWomen.length === 0) {
                 resultsContainer.innerHTML = `<p class="col-span-full text-center text-gray-400">${this.translate('prognosis_uneven')}</p>`;
                 return;
             }
@@ -802,19 +914,17 @@ const AppState = {
             const confirmedMatches = this.state.matchboxes
                 .filter(mb => mb.result === 'perfect')
                 .map(mb => ({ manId: mb.manId, womanId: mb.womanId }));
-            
+
             const confirmedIds = new Set(confirmedMatches.flatMap(p => [p.manId, p.womanId]));
             const remainingMen = allMen.filter(c => !confirmedIds.has(c.id));
             const remainingWomen = allWomen.filter(c => !confirmedIds.has(c.id));
+            
             resultsContainer.innerHTML = '';
+            confirmedMatches.forEach(p => resultsContainer.innerHTML += this.createPrognosisCardHTML({ ...p, prob: 1, isConfirmed: true }));
 
-            confirmedMatches.forEach(pair => {
-                resultsContainer.innerHTML += this.createPrognosisCardHTML({ manId: pair.manId, womanId: pair.womanId, prob: 1, isConfirmed: true });
-            });
-
-            if (remainingMen.length === 0) {
-                 infoContainer.innerHTML = this.translate('prognosis_all_found');
-                return;
+            if (remainingMen.length === 0 || remainingWomen.length === 0) {
+                 infoContainer.innerHTML = ''; // Clear info if only confirmed matches exist
+                 return;
             }
             
             const { validWorlds, probabilities } = this.calculatePrognosis(remainingMen, remainingWomen, confirmedMatches);
@@ -822,49 +932,91 @@ const AppState = {
             const countText = validWorlds.length === 1 ? 'prognosis_info_text_one' : 'prognosis_info_text';
             infoContainer.innerHTML = this.translate(countText, {count: validWorlds.length.toLocaleString(this.settings.lang)});
             
-            if (validWorlds.length === 0) {
-                resultsContainer.innerHTML += `<p class="col-span-full text-center text-red-400">${this.translate('prognosis_no_combinations')}</p>`;
-                return;
+            if (validWorlds.length === 0 && (remainingMen.length > 0 || remainingWomen.length > 0)) {
+                 resultsContainer.innerHTML += `<p class="col-span-full text-center text-red-400">${this.translate('prognosis_no_combinations')}</p>`;
+                 return;
             }
             
-            probabilities.sort((a, b) => b.prob - a.prob);
-            probabilities.forEach(p => resultsContainer.innerHTML += this.createPrognosisCardHTML(p));
+            const newlySolvedPairs = probabilities.filter(p => p.prob === 1);
+            const newlySolvedIds = new Set(newlySolvedPairs.flatMap(p => [p.manId, p.womanId]));
+
+            const filteredProbabilities = probabilities.filter(p => {
+                if (p.prob === 1) return true;
+                return !newlySolvedIds.has(p.manId) && !newlySolvedIds.has(p.womanId);
+            });
+            
+            filteredProbabilities.sort((a, b) => b.prob - a.prob);
+            filteredProbabilities.forEach(p => resultsContainer.innerHTML += this.createPrognosisCardHTML(p));
         }, 50);
     },
     
     createPrognosisCardHTML(p) {
         const man = this.getContestantById(p.manId);
         const woman = this.getContestantById(p.womanId);
+        if (!man || !woman) return '';
         const prob = Math.round(p.prob * 100);
+        
         let bgColor;
-        if (p.isConfirmed) bgColor = 'bg-pink-500';
-        else if (prob === 100) bgColor = 'bg-green-500';
-        else if (prob > 70) bgColor = 'bg-teal-500';
-        else if (prob > 40) bgColor = 'bg-cyan-500';
-        else if (prob > 10) bgColor = 'bg-cyan-600';
-        else if (prob > 0) bgColor = 'bg-cyan-700';
-        else bgColor = 'bg-red-600';
+        let extraCardClasses = '';
+        let namesHTML = `${man.name} & ${woman.name}`;
+
+        if (p.isConfirmed) {
+            bgColor = 'bg-pink-500';
+        } else if (prob === 100) {
+            bgColor = 'bg-green-500';
+        } else if (prob > 70) {
+            bgColor = 'bg-teal-500';
+        } else if (prob > 40) {
+            bgColor = 'bg-cyan-500';
+        } else if (prob > 10) {
+            bgColor = 'bg-cyan-600';
+        } else if (prob > 0) {
+            bgColor = 'bg-cyan-700';
+        } else {
+            bgColor = 'bg-red-600';
+            extraCardClasses = 'opacity-60';
+            namesHTML = `<span class="line-through">${man.name} & ${woman.name}</span>`;
+        }
+        
         const confirmedClasses = p.isConfirmed ? 'border-2 border-yellow-400 shadow-lg' : '';
-        return `<div class="card p-4 space-y-2 ${confirmedClasses}"><div class="font-medium text-center">${man.name} & ${woman.name}</div><div class="progress-bar"><div class="progress-bar-inner ${bgColor}" style="width: ${prob}%">${prob}%</div></div></div>`;
+        const barWidth = prob > 0 ? prob : 100;
+
+        return `<div class="card p-4 space-y-2 ${confirmedClasses} ${extraCardClasses}"><div class="font-medium text-center">${namesHTML}</div><div class="progress-bar"><div class="progress-bar-inner ${bgColor}" style="width: ${barWidth}%">${prob}%</div></div></div>`;
     },
 
     // --- Prognosis Calculation ---
     calculatePrognosis(men, women, confirmedMatches = []) {
-        const menIds = men.map(m => m.id);
-        const womenIds = women.map(w => w.id);
+        const isMenSmaller = men.length <= women.length;
+        const smallerGroup = isMenSmaller ? men : women;
+        const largerGroup = isMenSmaller ? women : men;
+
+        const smallerIds = smallerGroup.map(c => c.id);
+        const largerIds = largerGroup.map(c => c.id);
         let validWorlds = [];
 
+        function* combinations(arr, k) {
+            if (k < 0 || k > arr.length) return;
+            if (k === 0) { yield []; return; }
+            if (arr.length === 0) return;
+            const [first, ...rest] = arr;
+            for (const combo of combinations(rest, k - 1)) {
+                yield [first, ...combo];
+            }
+            for (const combo of combinations(rest, k)) {
+                yield combo;
+            }
+        }
+        
         function* permute(permutation) {
             const length = permutation.length;
+            if (length === 0) { yield []; return; }
             const c = Array(length).fill(0);
-            let i = 1, k, p;
+            let i = 1;
             yield permutation.slice();
             while (i < length) {
                 if (c[i] < i) {
-                    k = i % 2 && c[i];
-                    p = permutation[i];
-                    permutation[i] = permutation[k];
-                    permutation[k] = p;
+                    const k = i % 2 ? c[i] : 0;
+                    [permutation[i], permutation[k]] = [permutation[k], permutation[i]];
                     ++c[i];
                     i = 1;
                     yield permutation.slice();
@@ -875,19 +1027,34 @@ const AppState = {
             }
         }
 
-        const womenPermutations = permute(womenIds);
+        const largerGroupCombinations = combinations(largerIds, smallerIds.length);
         const confirmedPairs = confirmedMatches.map(p => [p.manId, p.womanId]);
 
-        for (const p of womenPermutations) {
-            const partialWorld = menIds.map((manId, index) => [manId, p[index]]);
-            if (this.isWorldValid(partialWorld, confirmedPairs)) {
-                validWorlds.push(partialWorld);
+        for (const combo of largerGroupCombinations) {
+            const permutationsOfCombo = permute(combo);
+            for (const p of permutationsOfCombo) {
+                const partialWorld = smallerIds.map((id, index) => {
+                    const manId = isMenSmaller ? id : p[index];
+                    const womanId = isMenSmaller ? p[index] : id;
+                    return [manId, womanId];
+                });
+                if (this.isWorldValid(partialWorld, confirmedPairs)) {
+                    validWorlds.push(partialWorld);
+                }
             }
         }
         
         const probabilityMap = new Map();
         men.forEach(man => women.forEach(woman => probabilityMap.set(`${man.id}-${woman.id}`, 0)));
-        validWorlds.forEach(world => world.forEach(pair => probabilityMap.set(`${pair[0]}-${pair[1]}`, probabilityMap.get(`${pair[0]}-${pair[1]}`) + 1)));
+        
+        validWorlds.forEach(world => {
+            world.forEach(pair => {
+                const key = `${pair[0]}-${pair[1]}`;
+                if (probabilityMap.has(key)) {
+                    probabilityMap.set(key, probabilityMap.get(key) + 1);
+                }
+            });
+        });
         
         const probabilities = [];
         for (const [key, count] of probabilityMap.entries()) {
@@ -901,24 +1068,30 @@ const AppState = {
     isWorldValid(partialWorld, confirmedPairs = []) {
         const world = [...partialWorld, ...confirmedPairs];
         for (const mb of this.state.matchboxes) {
-            const pairInWorld = world.some(p => p[0] === mb.manId && p[1] === mb.womanId);
-            if ((mb.result === 'perfect' && !pairInWorld) || (mb.result === 'no_match' && pairInWorld)) return false;
+            const isPairInWorld = world.some(p => p[0] === mb.manId && p[1] === mb.womanId);
+            if (mb.result === 'perfect' && !isPairInWorld) return false;
+            if (mb.result === 'no_match' && isPairInWorld) return false;
         }
+
         for (const mn of this.state.matchingNights) {
-            let correctPairs = 0;
-            mn.pairs.forEach(mnPair => {
-                if (world.some(p => p[0] === mnPair[0] && p[1] === mnPair[1])) correctPairs++;
+            let correctBeams = 0;
+            mn.pairs.forEach(pair => {
+                if (world.some(p => p[0] === pair[0] && p[1] === pair[1])) {
+                    correctBeams++;
+                }
             });
-            if (correctPairs !== mn.lights) return false;
+            if (correctBeams !== mn.lights) return false;
         }
         return true;
     }
 };
 
-document.addEventListener('DOMContentLoaded', () => AppState.init());
+document.addEventListener('DOMContentLoaded', () => {
+    AppState.init();
+});
+
 </script>
 </body>
 </html>
-
 
 
