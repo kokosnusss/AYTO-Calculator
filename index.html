@@ -137,16 +137,9 @@
             transform: translateX(0);
         }
         .notification.error { background-color: #dc2626; }
-        .notification.success { background-color: #16a34a; }
-        .main-header-title { color: #ffffff; }
-        .main-header-subtitle { color: #9ca3af; } /* text-gray-400 */
-        html:not(.dark) .main-header-title { color: #111827; } /* text-gray-900 */
-        html:not(.dark) .main-header-subtitle { color: #6b7280; } /* text-gray-500 */
-        html:not(.dark) select option:disabled { color: #9ca3af; }
-        .pair-chip { background-color: #374151; }
-        html:not(.dark) .pair-chip { background-color: #e5e7eb; }
-        #prognosis-info { color: #9ca3af; }
-        html:not(.dark) #prognosis-info { color: #4b5563; }
+        html:not(.dark) #prognosis-info {
+            color: #4b5563; /* Corresponds to text-gray-600 */
+        }
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -155,6 +148,13 @@
             align-items: center;
             justify-content: center;
             z-index: 50;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none; /* Chrome, Safari and Opera */
         }
     </style>
 </head>
@@ -175,7 +175,7 @@
 
         <!-- Tabs -->
         <div class="mb-6 border-b border-gray-700">
-            <nav class="flex -mb-px space-x-4" id="tab-navigation">
+            <nav class="flex -mb-px space-x-4 overflow-x-auto whitespace-nowrap hide-scrollbar" id="tab-navigation">
                 <button data-tab="kandidaten" class="tab-button active text-base font-medium border-b-2 border-transparent px-4 py-3 whitespace-nowrap" data-lang="tab_contestants">Kandidaten</button>
                 <button data-tab="matchboxen" class="tab-button text-base font-medium border-b-2 border-transparent px-4 py-3 whitespace-nowrap" data-lang="tab_matchboxes">Matchboxen</button>
                 <button data-tab="matching-nights" class="tab-button text-base font-medium border-b-2 border-transparent px-4 py-3 whitespace-nowrap" data-lang="tab_matching_nights">Matching Nights</button>
@@ -1164,7 +1164,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </script>
 
-<script data-goatcounter="https://kokosnusss.goatcounter.com/count"
+<!-- 
+    USAGE TRACKING SCRIPT (GoatCounter)
+    ------------------------------------
+    To enable usage tracking for your tool, follow these steps:
+    1. Go to https://www.goatcounter.com and sign up for a free account.
+    2. During setup, you will receive a unique code for your site (e.g., "my-ayto-tool").
+    3. Replace "YOUR_CODE_HERE" in the 'data-goatcounter' attribute below with your unique code.
+    
+    Example:
+    If your code is "my-ayto-tool", the line should look like this:
+    <script data-goatcounter="https://my-ayto-tool.goatcounter.com/count" ... >
+-->
+<script data-goatcounter="https://YOUR_CODE_HERE.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
 
 </body>
