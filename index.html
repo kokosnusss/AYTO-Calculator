@@ -106,12 +106,6 @@
             height: 100%;
             border-radius: 9999px;
             transition: width 0.3s ease-in-out;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.75rem;
-            color: white;
-            font-weight: 600;
         }
         @keyframes highlight-form {
             from {
@@ -314,6 +308,7 @@
                             <span data-lang="btn_recalculate">Neu berechnen</span>
                         </button>
                     </div>
+                    <p class="text-sm text-gray-400 mb-4" data-lang="prognosis_recalc_info">Klicke auf "Neu berechnen", um die Wahrscheinlichkeiten basierend auf den aktuellen Daten zu aktualisieren. Dies kann bei vielen Kandidaten einen Moment dauern.</p>
                     <div id="prognosis-info" class="mb-4"></div>
                     <div id="prognosis-results" class="prognosis-grid">
                         <!-- Prognosis cards will be generated here -->
@@ -403,6 +398,7 @@ const translations = {
         mn_history_title: "Matching Night-Verlauf",
         prognosis_title: "Prognose: Wahrscheinlichkeiten für Perfect Matches",
         btn_recalculate: "Neu berechnen",
+        prognosis_recalc_info: "Klicke auf \"Neu berechnen\", um die Wahrscheinlichkeiten basierend auf den aktuellen Daten zu aktualisieren. Dies kann bei vielen Kandidaten einen Moment dauern.",
         notification_contestant_added: "Kandidat hinzugefügt!",
         notification_contestant_removed: "Kandidat entfernt.",
         notification_name_updated: "Name aktualisiert.",
@@ -459,6 +455,7 @@ const translations = {
         mn_history_title: "Matching Night History",
         prognosis_title: "Prognosis: Probabilities for Perfect Matches",
         btn_recalculate: "Recalculate",
+        prognosis_recalc_info: "Click \"Recalculate\" to update the probabilities based on the current data. This may take a moment with many contestants.",
         notification_contestant_added: "Contestant added!",
         notification_contestant_removed: "Contestant removed.",
         notification_name_updated: "Name updated.",
@@ -490,6 +487,7 @@ const AppState = {
         theme: 'dark',
     },
     editingMatchingNightId: null,
+    prognosisWorker: null,
 
     init() {
         this.loadSettings();
@@ -570,7 +568,7 @@ const AppState = {
 
         // Recalculate prognosis button
         document.getElementById('recalculate-prognosis').addEventListener('click', () => {
-            this.renderPrognosis();
+            this.runPrognosisCalculation();
         });
 
         // Theme toggle
@@ -621,16 +619,15 @@ const AppState = {
             const key = el.dataset.lang;
             const translation = this.translate(key);
             if (translation) {
-                // If the element has a placeholder, set it, otherwise set textContent
                 if (el.placeholder !== undefined) {
                     el.placeholder = translation;
                 } else {
-                    el.innerHTML = translation; // Use innerHTML to support strong tags
+                    el.innerHTML = translation; 
                 }
             }
         });
         document.getElementById('lang-toggle').textContent = lang.toUpperCase();
-        this.renderAll(); // Rerender to update dynamic content
+        this.renderAll(); 
     },
     
     translate(key, replacements = {}) {
@@ -648,10 +645,6 @@ const AppState = {
         document.querySelectorAll('.tab-button').forEach(button => {
             button.classList.toggle('active', button.dataset.tab === tabId);
         });
-        
-        if(tabId === 'prognose') {
-            this.renderPrognosis();
-        }
     },
     
     saveAndRender() {
@@ -663,10 +656,6 @@ const AppState = {
         this.renderContestants();
         this.renderMatchboxes();
         this.renderMatchingNights();
-        // Avoid auto-recalculating prognosis on every change for performance
-        if (document.getElementById('prognose').classList.contains('hidden') === false) {
-             this.renderPrognosis();
-        }
     },
 
     // --- Contestant Logic ---
@@ -686,7 +675,6 @@ const AppState = {
 
     removeContestant(id) {
         this.state.contestants = this.state.contestants.filter(c => c.id !== id);
-        // Also remove from any pairs etc.
         this.state.matchboxes = this.state.matchboxes.filter(mb => mb.manId !== id && mb.womanId !== id);
         this.state.matchingNights.forEach(mn => {
             mn.pairs = mn.pairs.filter(p => p[0] !== id && p[1] !== id);
@@ -996,9 +984,7 @@ const AppState = {
         const notif = document.createElement('div');
         notif.className = `notification ${type}`;
         notif.textContent = this.translate(messageKey);
-        if (type === 'success') {
-            notif.classList.add('bg-green-600');
-        }
+        
         container.appendChild(notif);
         
         setTimeout(() => { notif.classList.add('show'); }, 10);
@@ -1009,58 +995,201 @@ const AppState = {
     },
     
     // --- Prognosis Rendering ---
-    renderPrognosis() {
+    runPrognosisCalculation() {
+        if (this.prognosisWorker) {
+            this.prognosisWorker.terminate();
+        }
+
+        const workerCode = `
+            function isWorldValid(partialWorld, confirmedPairs, matchboxes, matchingNights) {
+                const world = [...partialWorld, ...confirmedPairs];
+                for (const mb of matchboxes) {
+                    const isPairInWorld = world.some(p => p[0] === mb.manId && p[1] === mb.womanId);
+                    if (mb.result === 'perfect' && !isPairInWorld) return false;
+                    if (mb.result === 'no_match' && isPairInWorld) return false;
+                }
+
+                for (const mn of matchingNights) {
+                    let correctBeams = 0;
+                    mn.pairs.forEach(pair => {
+                        if (world.some(p => p[0] === pair[0] && p[1] === pair[1])) {
+                            correctBeams++;
+                        }
+                    });
+                    if (correctBeams !== mn.lights) return false;
+                }
+                return true;
+            }
+
+            function calculatePrognosis(men, women, confirmedMatches, matchboxes, matchingNights) {
+                const isMenSmaller = men.length <= women.length;
+                const smallerGroup = isMenSmaller ? men : women;
+                const largerGroup = isMenSmaller ? women : men;
+
+                const smallerIds = smallerGroup.map(c => c.id);
+                const largerIds = largerGroup.map(c => c.id);
+                let worldCount = 0;
+
+                function* combinations(arr, k) {
+                    if (k < 0 || k > arr.length) return;
+                    if (k === 0) { yield []; return; }
+                    if (arr.length === 0) return;
+                    const [first, ...rest] = arr;
+                    for (const combo of combinations(rest, k - 1)) {
+                        yield [first, ...combo];
+                    }
+                    for (const combo of combinations(rest, k)) {
+                        yield combo;
+                    }
+                }
+                
+                function* permute(permutation) {
+                    const length = permutation.length;
+                    if (length === 0) { yield []; return; }
+                    const c = Array(length).fill(0);
+                    let i = 1;
+                    yield permutation.slice();
+                    while (i < length) {
+                        if (c[i] < i) {
+                            const k = i % 2 ? c[i] : 0;
+                            [permutation[i], permutation[k]] = [permutation[k], permutation[i]];
+                            ++c[i];
+                            i = 1;
+                            yield permutation.slice();
+                        } else {
+                            c[i] = 0;
+                            ++i;
+                        }
+                    }
+                }
+
+                const largerGroupCombinations = combinations(largerIds, smallerIds.length);
+                const confirmedPairs = confirmedMatches.map(p => [p.manId, p.womanId]);
+
+                const probabilityMap = new Map();
+                men.forEach(man => women.forEach(woman => probabilityMap.set(\`\${man.id}-\${woman.id}\`, 0)));
+
+                for (const combo of largerGroupCombinations) {
+                    if (worldCount > 400000) break;
+                    const permutationsOfCombo = permute(combo);
+                    for (const p of permutationsOfCombo) {
+                        const partialWorld = smallerIds.map((id, index) => {
+                            const manId = isMenSmaller ? id : p[index];
+                            const womanId = isMenSmaller ? p[index] : id;
+                            return [manId, womanId];
+                        });
+                        if (isWorldValid(partialWorld, confirmedPairs, matchboxes, matchingNights)) {
+                            worldCount++;
+                            partialWorld.forEach(pair => {
+                                const key = \`\${pair[0]}-\${pair[1]}\`;
+                                if (probabilityMap.has(key)) {
+                                    probabilityMap.set(key, probabilityMap.get(key) + 1);
+                                }
+                            });
+                        }
+                    }
+                }
+                
+                const probabilities = [];
+                for (const [key, count] of probabilityMap.entries()) {
+                    const [manId, womanId] = key.split('-').map(Number);
+                    probabilities.push({ manId, womanId, prob: worldCount > 0 ? count / worldCount : 0 });
+                }
+                
+                return { validWorlds: { length: worldCount }, probabilities };
+            }
+            
+            self.onmessage = function(e) {
+                const { men, women, confirmedMatches, matchboxes, matchingNights } = e.data;
+                const result = calculatePrognosis(men, women, confirmedMatches, matchboxes, matchingNights);
+                self.postMessage(result);
+            };
+        `;
+        
+        const blob = new Blob([workerCode], { type: 'application/javascript' });
+        this.prognosisWorker = new Worker(URL.createObjectURL(blob));
+
         const resultsContainer = document.getElementById('prognosis-results');
         const infoContainer = document.getElementById('prognosis-info');
+        const recalcButton = document.getElementById('recalculate-prognosis');
+
         resultsContainer.innerHTML = `<div class="text-center col-span-full py-8"><div class="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500 mx-auto"></div><p class="mt-4">${this.translate('prognosis_calculating')}</p></div>`;
         infoContainer.innerHTML = '';
+        recalcButton.disabled = true;
 
-        setTimeout(() => {
-            const allMen = this.getContestantsByGender('male');
-            const allWomen = this.getContestantsByGender('female');
+        this.prognosisWorker.onmessage = (e) => {
+            const { validWorlds, probabilities } = e.data;
+            this.renderPrognosisResults(validWorlds, probabilities);
+            recalcButton.disabled = false;
+            this.prognosisWorker.terminate();
+            this.prognosisWorker = null;
+        };
+        
+        this.prognosisWorker.onerror = (e) => {
+            console.error('Error in prognosis worker:', e);
+            resultsContainer.innerHTML = `<p class="col-span-full text-center text-red-400">An error occurred during calculation.</p>`;
+            recalcButton.disabled = false;
+            this.prognosisWorker.terminate();
+            this.prognosisWorker = null;
+        };
 
-            if (allMen.length === 0 || allWomen.length === 0) {
-                resultsContainer.innerHTML = `<p class="col-span-full text-center text-gray-400">${this.translate('prognosis_uneven')}</p>`;
-                return;
-            }
-            
-            const confirmedMatches = this.state.matchboxes
-                .filter(mb => mb.result === 'perfect')
-                .map(mb => ({ manId: mb.manId, womanId: mb.womanId }));
+        const allMen = this.getContestantsByGender('male');
+        const allWomen = this.getContestantsByGender('female');
 
-            const confirmedIds = new Set(confirmedMatches.flatMap(p => [p.manId, p.womanId]));
-            const remainingMen = allMen.filter(c => !confirmedIds.has(c.id));
-            const remainingWomen = allWomen.filter(c => !confirmedIds.has(c.id));
-            
-            resultsContainer.innerHTML = '';
-            confirmedMatches.forEach(p => resultsContainer.innerHTML += this.createPrognosisCardHTML({ ...p, prob: 1, isConfirmed: true }));
+        if (allMen.length === 0 || allWomen.length === 0) {
+            resultsContainer.innerHTML = `<p class="col-span-full text-center text-gray-400">${this.translate('prognosis_uneven')}</p>`;
+            recalcButton.disabled = false;
+            return;
+        }
 
-            if (remainingMen.length === 0 || remainingWomen.length === 0) {
-                 infoContainer.innerHTML = ''; // Clear info if only confirmed matches exist
-                 return;
-            }
-            
-            const { validWorlds, probabilities } = this.calculatePrognosis(remainingMen, remainingWomen, confirmedMatches);
-            
-            const countText = validWorlds.length === 1 ? 'prognosis_info_text_one' : 'prognosis_info_text';
-            infoContainer.innerHTML = this.translate(countText, {count: validWorlds.length.toLocaleString(this.settings.lang)});
-            
-            if (validWorlds.length === 0 && (remainingMen.length > 0 || remainingWomen.length > 0)) {
-                 resultsContainer.innerHTML += `<p class="col-span-full text-center text-red-400">${this.translate('prognosis_no_combinations')}</p>`;
-                 return;
-            }
-            
-            const newlySolvedPairs = probabilities.filter(p => p.prob === 1);
-            const newlySolvedIds = new Set(newlySolvedPairs.flatMap(p => [p.manId, p.womanId]));
+        const confirmedMatches = this.state.matchboxes
+            .filter(mb => mb.result === 'perfect')
+            .map(mb => ({ manId: mb.manId, womanId: mb.womanId }));
+        const confirmedIds = new Set(confirmedMatches.flatMap(p => [p.manId, p.womanId]));
+        
+        const remainingMen = allMen.filter(c => !confirmedIds.has(c.id));
+        const remainingWomen = allWomen.filter(c => !confirmedIds.has(c.id));
 
-            const filteredProbabilities = probabilities.filter(p => {
-                if (p.prob === 1) return true;
-                return !newlySolvedIds.has(p.manId) && !newlySolvedIds.has(p.womanId);
-            });
-            
-            filteredProbabilities.sort((a, b) => b.prob - a.prob);
-            filteredProbabilities.forEach(p => resultsContainer.innerHTML += this.createPrognosisCardHTML(p));
-        }, 50);
+        this.prognosisWorker.postMessage({
+            men: remainingMen,
+            women: remainingWomen,
+            confirmedMatches: confirmedMatches,
+            matchboxes: this.state.matchboxes,
+            matchingNights: this.state.matchingNights
+        });
+    },
+
+    renderPrognosisResults(validWorlds, probabilities) {
+        const resultsContainer = document.getElementById('prognosis-results');
+        const infoContainer = document.getElementById('prognosis-info');
+        resultsContainer.innerHTML = '';
+
+        const confirmedMatches = this.state.matchboxes
+            .filter(mb => mb.result === 'perfect')
+            .map(mb => ({ manId: mb.manId, womanId: mb.womanId }));
+
+        const confirmedIds = new Set(confirmedMatches.flatMap(p => [p.manId, p.womanId]));
+        
+        confirmedMatches.forEach(p => resultsContainer.innerHTML += this.createPrognosisCardHTML({ ...p, prob: 1, isConfirmed: true }));
+
+        const countText = validWorlds.length === 1 ? 'prognosis_info_text_one' : 'prognosis_info_text';
+        infoContainer.innerHTML = this.translate(countText, { count: validWorlds.length.toLocaleString(this.settings.lang) });
+
+        if (validWorlds.length === 0 && probabilities.length > 0) {
+            resultsContainer.innerHTML += `<p class="col-span-full text-center text-red-400">${this.translate('prognosis_no_combinations')}</p>`;
+            return;
+        }
+
+        const newlySolvedPairs = probabilities.filter(p => p.prob === 1);
+        const newlySolvedIds = new Set(newlySolvedPairs.flatMap(p => [p.manId, p.womanId]));
+
+        const filteredProbabilities = probabilities.filter(p => {
+            if (p.prob === 1) return true;
+            return !newlySolvedIds.has(p.manId) && !newlySolvedIds.has(p.womanId);
+        });
+
+        filteredProbabilities.sort((a, b) => b.prob - a.prob);
+        filteredProbabilities.forEach(p => resultsContainer.innerHTML += this.createPrognosisCardHTML(p));
     },
     
     createPrognosisCardHTML(p) {
@@ -1094,115 +1223,22 @@ const AppState = {
         const confirmedClasses = p.isConfirmed ? 'border-2 border-yellow-400 shadow-lg' : '';
         const barWidth = prob > 0 ? prob : 100;
 
-        return `<div class="card p-4 space-y-2 ${confirmedClasses} ${extraCardClasses}"><div class="font-medium text-center">${namesHTML}</div><div class="progress-bar"><div class="progress-bar-inner ${bgColor}" style="width: ${barWidth}%">${prob}%</div></div></div>`;
+        return `<div class="card p-4 space-y-2 ${confirmedClasses} ${extraCardClasses}">
+                <div class="font-medium text-center">${namesHTML}</div>
+                <div class="progress-bar relative">
+                    <div class="progress-bar-inner ${bgColor}" style="width: ${barWidth}%"></div>
+                    <span class="absolute inset-0 flex items-center justify-center text-xs font-semibold text-white pointer-events-none">${prob}%</span>
+                </div>
+            </div>`;
     },
 
-    // --- Prognosis Calculation ---
-    calculatePrognosis(men, women, confirmedMatches = []) {
-        const isMenSmaller = men.length <= women.length;
-        const smallerGroup = isMenSmaller ? men : women;
-        const largerGroup = isMenSmaller ? women : men;
-
-        const smallerIds = smallerGroup.map(c => c.id);
-        const largerIds = largerGroup.map(c => c.id);
-        let validWorlds = [];
-
-        function* combinations(arr, k) {
-            if (k < 0 || k > arr.length) return;
-            if (k === 0) { yield []; return; }
-            if (arr.length === 0) return;
-            const [first, ...rest] = arr;
-            for (const combo of combinations(rest, k - 1)) {
-                yield [first, ...combo];
-            }
-            for (const combo of combinations(rest, k)) {
-                yield combo;
-            }
-        }
-        
-        function* permute(permutation) {
-            const length = permutation.length;
-            if (length === 0) { yield []; return; }
-            const c = Array(length).fill(0);
-            let i = 1;
-            yield permutation.slice();
-            while (i < length) {
-                if (c[i] < i) {
-                    const k = i % 2 ? c[i] : 0;
-                    [permutation[i], permutation[k]] = [permutation[k], permutation[i]];
-                    ++c[i];
-                    i = 1;
-                    yield permutation.slice();
-                } else {
-                    c[i] = 0;
-                    ++i;
-                }
-            }
-        }
-
-        const largerGroupCombinations = combinations(largerIds, smallerIds.length);
-        const confirmedPairs = confirmedMatches.map(p => [p.manId, p.womanId]);
-
-        for (const combo of largerGroupCombinations) {
-            const permutationsOfCombo = permute(combo);
-            for (const p of permutationsOfCombo) {
-                const partialWorld = smallerIds.map((id, index) => {
-                    const manId = isMenSmaller ? id : p[index];
-                    const womanId = isMenSmaller ? p[index] : id;
-                    return [manId, womanId];
-                });
-                if (this.isWorldValid(partialWorld, confirmedPairs)) {
-                    validWorlds.push(partialWorld);
-                }
-            }
-        }
-        
-        const probabilityMap = new Map();
-        men.forEach(man => women.forEach(woman => probabilityMap.set(`${man.id}-${woman.id}`, 0)));
-        
-        validWorlds.forEach(world => {
-            world.forEach(pair => {
-                const key = `${pair[0]}-${pair[1]}`;
-                if (probabilityMap.has(key)) {
-                    probabilityMap.set(key, probabilityMap.get(key) + 1);
-                }
-            });
-        });
-        
-        const probabilities = [];
-        for (const [key, count] of probabilityMap.entries()) {
-            const [manId, womanId] = key.split('-').map(Number);
-            probabilities.push({ manId, womanId, prob: validWorlds.length > 0 ? count / validWorlds.length : 0 });
-        }
-        
-        return { validWorlds, probabilities };
-    },
-
-    isWorldValid(partialWorld, confirmedPairs = []) {
-        const world = [...partialWorld, ...confirmedPairs];
-        for (const mb of this.state.matchboxes) {
-            const isPairInWorld = world.some(p => p[0] === mb.manId && p[1] === mb.womanId);
-            if (mb.result === 'perfect' && !isPairInWorld) return false;
-            if (mb.result === 'no_match' && isPairInWorld) return false;
-        }
-
-        for (const mn of this.state.matchingNights) {
-            let correctBeams = 0;
-            mn.pairs.forEach(pair => {
-                if (world.some(p => p[0] === pair[0] && p[1] === pair[1])) {
-                    correctBeams++;
-                }
-            });
-            if (correctBeams !== mn.lights) return false;
-        }
-        return true;
-    }
+    // --- Prognosis Calculation (to be run in worker) ---
+    // The logic is now inside the workerCode string in runPrognosisCalculation
 };
 
 document.addEventListener('DOMContentLoaded', () => {
     AppState.init();
 });
-
 </script>
 
 <script data-goatcounter="https://kokosnusss.goatcounter.com/count"
@@ -1210,3 +1246,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
+
+
